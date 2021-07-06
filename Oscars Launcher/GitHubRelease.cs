@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Oscar_s_Launcher
+namespace Oscars_Launcher
 {
     class GitHubRelease
     {
