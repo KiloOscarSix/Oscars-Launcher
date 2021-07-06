@@ -8,7 +8,7 @@ using System.Text.Json;
 using System.Windows;
 using System.Windows.Controls;
 
-namespace Oscar_s_Launcher
+namespace Oscars_Launcher
 {
     class Launcher
     {

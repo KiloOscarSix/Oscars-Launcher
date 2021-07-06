@@ -2,7 +2,7 @@
 using System.IO;
 using System.Windows;
 
-namespace Oscar_s_Launcher
+namespace Oscars_Launcher
 {
     public partial class MainWindow : Window
     {
