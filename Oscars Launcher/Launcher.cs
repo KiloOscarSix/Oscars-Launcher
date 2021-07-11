@@ -12,12 +12,12 @@ namespace Oscars_Launcher
 {
     class Launcher
     {
-        private string name;
-        private string rootPath;
-        private string versionFile;
-        private string versionFileLink;
+        private readonly string name;
+        private readonly string rootPath;
+        private readonly string versionFile;
+        private readonly string versionFileLink;
         internal string softwareExe;
-        private Button LaunchButton;
+        private readonly Button LaunchButton;
 
         public Launcher(string _name, Button _LaunchButton, string _versionFileLink)
         {
@@ -36,12 +36,12 @@ namespace Oscars_Launcher
         {
             if (File.Exists(versionFile))
             {
-                Version localVersion = new Version(File.ReadAllText(versionFile));
+                Version localVersion = new(File.ReadAllText(versionFile));
 
                 try
                 {
-                    WebClient webClient = new WebClient();
-                    Version onlineVersion = new Version(webClient.DownloadString(versionFileLink));
+                    WebClient webClient = new();
+                    Version onlineVersion = new(webClient.DownloadString(versionFileLink));
 
                     if (onlineVersion.IsDifferentThan(localVersion))
                     {
@@ -68,7 +68,7 @@ namespace Oscars_Launcher
         {
             try
             {
-                WebClient webClient = new WebClient();
+                WebClient webClient = new();
                 if (_isUpdate)
                 {
                     LaunchButton.Content = "Downloading Update";
@@ -84,9 +84,9 @@ namespace Oscars_Launcher
                 foreach (string link in downloadLinks)
                 {
                     string[] fileArray = link.Split('/');
-                    string fileName = fileArray[fileArray.Length - 1];
+                    string fileName = fileArray[^1];
 
-                    using (WebClient webClient2 = new WebClient())
+                    using (WebClient webClient2 = new())
                     {
                         webClient2.DownloadFileCompleted += new AsyncCompletedEventHandler(DownloadSoftwareCompletedCallback);
                         webClient2.DownloadFileAsync(new Uri(link), Path.Combine(rootPath, fileName), onlineVersion);
@@ -100,7 +100,7 @@ namespace Oscars_Launcher
             }
         }
 
-        private string HTTPRequest_Get(string uri)
+        private static string HTTPRequest_Get(string uri)
         {
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uri);
             request.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
@@ -109,17 +109,17 @@ namespace Oscars_Launcher
 
             using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
             using (Stream stream = response.GetResponseStream())
-            using (StreamReader reader = new StreamReader(stream))
+            using (StreamReader reader = new(stream))
             { return reader.ReadToEnd(); }
         }
 
         private string[] GetDownloadLinks()
         {
-            string lowerCaseName = name[0].ToString().ToLower() + name.Substring(1, name.Length - 1);
+            string lowerCaseName = name[0].ToString().ToLower() + name[1..];
             string jsonString = HTTPRequest_Get(@$"https://api.github.com/repos/College-Kings/{lowerCaseName}/releases/latest");
             GitHubRelease githubRelease = JsonSerializer.Deserialize<GitHubRelease>(jsonString);
 
-            List<string> rv = new List<string>();
+            List<string> rv = new();
             foreach (GitHubAssets asset in githubRelease.assets)
             {
                 rv.Add(asset.browser_download_url);
@@ -147,8 +147,10 @@ namespace Oscars_Launcher
         {
             if (File.Exists(softwareExe) && LaunchButton.Content.ToString() == "Launch")
             {
-                ProcessStartInfo startInfo = new ProcessStartInfo(softwareExe);
-                startInfo.WorkingDirectory = Path.Combine(rootPath);
+                ProcessStartInfo startInfo = new(softwareExe)
+                {
+                    WorkingDirectory = Path.Combine(rootPath)
+                };
                 Process.Start(startInfo);
             }
             else if (!LaunchButton.Content.ToString().StartsWith("Downloading"))
